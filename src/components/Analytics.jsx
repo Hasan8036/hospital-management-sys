@@ -14,6 +14,7 @@ function buildMonthlyData(rooms, year) {
   MONTH_SHORT.forEach((m, i) => { map[i] = { month: m, admissions: 0, totalDays: 0 }; });
 
   rooms.forEach(r => {
+    // Count discharged patients from history
     (r.history || []).forEach(h => {
       if (!h.from) return;
       const d = new Date(h.from);
@@ -22,6 +23,15 @@ function buildMonthlyData(rooms, year) {
       map[mo].admissions += 1;
       map[mo].totalDays += (h.days || 0);
     });
+
+    // Also count currently admitted patients
+    if (r.status === 'occupied' && r.admitDate) {
+      const d = new Date(r.admitDate);
+      if (d.getFullYear() === year) {
+        const mo = d.getMonth();
+        map[mo].admissions += 1;
+      }
+    }
   });
 
   const result = Object.values(map);
@@ -31,6 +41,7 @@ function buildMonthlyData(rooms, year) {
 
 function buildRoomStats(rooms, year, month) {
   return rooms.map(r => {
+    // Discharged entries from history
     const entries = (r.history || []).filter(h => {
       if (!h.from) return false;
       const d = new Date(h.from);
@@ -38,7 +49,17 @@ function buildRoomStats(rooms, year, month) {
       if (month !== null && d.getMonth() !== month) return false;
       return true;
     });
-    const admissions = entries.length;
+
+    // Currently admitted patient counts too
+    let currentAdmission = 0;
+    if (r.status === 'occupied' && r.admitDate) {
+      const d = new Date(r.admitDate);
+      const yearMatch = d.getFullYear() === year;
+      const monthMatch = month === null || d.getMonth() === month;
+      if (yearMatch && monthMatch) currentAdmission = 1;
+    }
+
+    const admissions = entries.length + currentAdmission;
     const totalDays = entries.reduce((s, h) => s + (h.days || 0), 0);
     const procedures = {};
     entries.forEach(h => { if (h.procedure) procedures[h.procedure] = (procedures[h.procedure] || 0) + 1; });
