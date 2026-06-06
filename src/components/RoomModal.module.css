@@ -1,0 +1,300 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,25,35,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: scaleIn 0.18s ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 1;
+}
+
+.mhLeft { display: flex; flex-direction: column; gap: 7px; }
+
+.roomId {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+.typeBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+.statusBadge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.statusDot { width: 6px; height: 6px; border-radius: 50%; }
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  padding: 4px 7px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.closeBtn:hover { background: var(--bg); color: var(--text-primary); }
+
+.modalBody { padding: 18px 20px 20px; }
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 18px;
+  border: 1px solid var(--border);
+}
+
+.infoItem {
+  background: var(--bg-card);
+  padding: 11px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.infoLabel {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.infoValue {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.checklist { margin-bottom: 18px; }
+
+.checklistHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.checklistHeader .sectionTitle { margin-bottom: 0; }
+
+.checkCount { font-size: 13px; font-weight: 600; font-family: 'DM Mono', monospace; }
+
+.progressBar {
+  height: 5px;
+  background: var(--bg);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease, background 0.3s;
+}
+
+.checkItems { display: flex; flex-direction: column; gap: 4px; }
+
+.checkItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 11px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.12s;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.checkItem:hover { border-color: var(--border-strong); }
+.checkItem.checked { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+.checkItem input[type=checkbox] { width: 14px; height: 14px; cursor: pointer; accent-color: var(--green); flex-shrink: 0; }
+.checkIcon { font-size: 13px; flex-shrink: 0; }
+.checkLabel { flex: 1; }
+.checkMark { color: var(--green); font-size: 13px; font-weight: 600; margin-left: auto; }
+
+.history { margin-bottom: 18px; }
+.histList { display: flex; flex-direction: column; gap: 4px; }
+
+.histItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.12s;
+}
+.histItem:hover { border-color: var(--border-strong); background: var(--border); }
+
+.histInfo { flex: 1; min-width: 0; }
+.histName { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+.histMr { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+
+.histMeta { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.histDates { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; white-space: nowrap; }
+.histArrow { color: var(--text-muted); font-size: 18px; flex-shrink: 0; }
+
+.procedureBadge {
+  display: inline-block;
+  background: var(--blue-bg);
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+}
+
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btnPrimary, .btnDanger, .btnSuccess, .btnSecondary {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btnPrimary { background: var(--bg-sidebar); color: #fff; }
+.btnPrimary:hover:not(:disabled) { opacity: 0.85; }
+.btnDanger { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.btnDanger:hover { background: #fbd5d5; }
+.btnSuccess { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.btnSuccess:hover:not(:disabled) { background: #c3eacb; }
+.btnSuccess:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnSecondary { background: var(--bg); color: var(--text-secondary); border: 1px solid var(--border); }
+.btnSecondary:hover { background: var(--border); }
+
+/* Admit / Discharge forms */
+.admitForm { display: flex; flex-direction: column; gap: 14px; }
+.patientSummary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 10px;
+  row-gap: 4px;
+  align-items: center;
+  padding: 12px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.formRow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.formField { display: flex; flex-direction: column; gap: 5px; }
+.formField label { font-size: 11px; font-weight: 500; color: var(--text-secondary); letter-spacing: 0.02em; }
+.formField input {
+  padding: 9px 11px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.formField input:focus { border-color: var(--accent); }
+.formActions { display: flex; gap: 8px; margin-top: 4px; }
+
+/* Procedure picker */
+.procedureGrid { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 4px; }
+.procBtn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.13s;
+  letter-spacing: 0.03em;
+}
+.procBtn:hover { border-color: var(--accent); color: var(--accent-dark); }
+.procBtnActive { background: var(--blue-bg); border-color: var(--blue); color: var(--blue) !important; }
+
+.selectedProc {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.clearProc {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 0;
+}
+.clearProc:hover { color: var(--red); }
+
+@media (max-width: 500px) {
+  .modal { max-height: 95vh; border-radius: 14px 14px 0 0; align-self: flex-end; }
+  .overlay { align-items: flex-end; padding: 0; }
+  .infoGrid { grid-template-columns: 1fr; }
+  .formRow { grid-template-columns: 1fr; }
+}
