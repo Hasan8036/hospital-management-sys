@@ -14,7 +14,6 @@ function buildMonthlyData(rooms, year) {
   MONTH_SHORT.forEach((m, i) => { map[i] = { month: m, admissions: 0, totalDays: 0 }; });
 
   rooms.forEach(r => {
-    // Count discharged patients from history
     (r.history || []).forEach(h => {
       if (!h.from) return;
       const d = new Date(h.from);
@@ -24,7 +23,6 @@ function buildMonthlyData(rooms, year) {
       map[mo].totalDays += (h.days || 0);
     });
 
-    // Also count currently admitted patients
     if (r.status === 'occupied' && r.admitDate) {
       const d = new Date(r.admitDate);
       if (d.getFullYear() === year) {
@@ -41,7 +39,6 @@ function buildMonthlyData(rooms, year) {
 
 function buildRoomStats(rooms, year, month) {
   return rooms.map(r => {
-    // Discharged entries from history
     const entries = (r.history || []).filter(h => {
       if (!h.from) return false;
       const d = new Date(h.from);
@@ -50,7 +47,6 @@ function buildRoomStats(rooms, year, month) {
       return true;
     });
 
-    // Currently admitted patient counts too
     let currentAdmission = 0;
     if (r.status === 'occupied' && r.admitDate) {
       const d = new Date(r.admitDate);
@@ -84,15 +80,149 @@ function PrintReport({ rooms, month, year, onClose }) {
     r.entries.map(e => ({ ...e, roomId: r.id, roomType: r.type }))
   ).sort((a, b) => a.from.localeCompare(b.from));
 
+  function handlePrint() {
+    const procsHtml = Object.keys(allProcs).length > 0 ? `
+      <div class="section">
+        <div class="section-title">Procedures Performed</div>
+        <div class="proc-row">
+          ${Object.entries(allProcs).map(([p, n]) => `
+            <div class="proc-item">
+              <div class="proc-name">${p}</div>
+              <div class="proc-count">${n}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>` : '';
+
+    const patientRowsHtml = allEntries.length > 0 ? `
+      <div class="section">
+        <div class="section-title">Patient Log — ${monthName} ${year}</div>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Room</th><th>Patient Name</th><th>MR#</th>
+              <th>Contact</th><th>Admitted</th><th>Discharged</th><th>Days</th><th>Procedure</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${allEntries.map((e, i) => `
+              <tr>
+                <td>${i + 1}</td>
+                <td><strong>${e.roomId}</strong></td>
+                <td>${e.patient}</td>
+                <td>${e.mrNumber || '—'}</td>
+                <td>${e.contactNumber || '—'}</td>
+                <td>${e.from}${e.admitTime ? ' ' + e.admitTime : ''}</td>
+                <td>${e.to || '(current)'}${e.dischargeTime ? ' ' + e.dischargeTime : ''}</td>
+                <td>${e.days !== undefined ? e.days + 'd' : '—'}</td>
+                <td>${e.procedure || '—'}</td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>` : '<p style="color:#888;text-align:center;padding:20px 0">No discharged patients recorded for this month.</p>';
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Monthly Report — ${monthName} ${year}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 12px; color: #1a1a1a; padding: 32px 36px; }
+
+    .header { text-align: center; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 2px solid #0f1923; }
+    .hospital { font-size: 18px; font-weight: 700; color: #0f1923; margin-bottom: 4px; }
+    .report-title { font-size: 13px; color: #666; margin-bottom: 6px; }
+    .period { font-size: 22px; font-weight: 300; color: #1a1a1a; margin-bottom: 4px; }
+    .generated { font-size: 10px; color: #999; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #e5e5e5; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; margin-bottom: 4px; }
+    .stat { background: #fff; padding: 14px 16px; text-align: center; }
+    .stat-val { font-size: 26px; font-weight: 300; color: #1a1a1a; letter-spacing: -1px; }
+    .stat-label { font-size: 10px; color: #999; margin-top: 3px; }
+
+    .section { margin-bottom: 24px; }
+    .section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #999; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e5e5e5; }
+
+    .proc-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .proc-item { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: #dbeafe; border-radius: 6px; border: 1px solid #bfdbfe; }
+    .proc-name { font-size: 12px; font-weight: 700; color: #1e40af; }
+    .proc-count { font-size: 18px; font-weight: 700; color: #1e40af; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th { text-align: left; padding: 7px 9px; background: #f5f5f5; border: 1px solid #e0e0e0; font-size: 10px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { padding: 7px 9px; border: 1px solid #e0e0e0; vertical-align: top; }
+    tr:nth-child(even) td { background: #fafafa; }
+
+    .footer { text-align: center; font-size: 10px; color: #bbb; padding-top: 16px; border-top: 1px solid #e5e5e5; margin-top: 8px; }
+
+    @media print {
+      body { padding: 16px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="hospital">Family Care Hospital — Attock</div>
+    <div class="report-title">Monthly Patient Report</div>
+    <div class="period">${monthName} ${year}</div>
+    <div class="generated">Generated: ${new Date().toLocaleDateString('en-PK', { day: 'numeric', month: 'long', year: 'numeric' })} at ${new Date().toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit' })}</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Summary</div>
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-val">${totalAdmissions}</div><div class="stat-label">Total admissions</div></div>
+      <div class="stat"><div class="stat-val">${avgStay}d</div><div class="stat-label">Avg. stay length</div></div>
+      <div class="stat"><div class="stat-val">${occupied}</div><div class="stat-label">Currently occupied</div></div>
+      <div class="stat"><div class="stat-val">${rooms.length}</div><div class="stat-label">Total rooms/cabins</div></div>
+    </div>
+  </div>
+
+  ${procsHtml}
+
+  <div class="section">
+    <div class="section-title">Room-wise Summary</div>
+    <table>
+      <thead>
+        <tr><th>Room</th><th>Type</th><th>Admissions</th><th>Total Days</th><th>Procedures</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        ${stats.map(r => `
+          <tr>
+            <td><strong>${r.id}</strong></td>
+            <td>${r.type}</td>
+            <td>${r.admissions}</td>
+            <td>${r.totalDays}d</td>
+            <td>${Object.entries(r.procedures).map(([p, n]) => p + '×' + n).join(', ') || '—'}</td>
+            <td>${r.status === 'vacant' ? 'Ready' : r.status === 'prep' ? 'Preparing' : 'Occupied'}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  ${patientRowsHtml}
+
+  <div class="footer">Family Care Hospital Attock &nbsp;·&nbsp; Software by Halik &nbsp;·&nbsp; Confidential</div>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank', 'width=900,height=700');
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => { win.print(); }, 500);
+  }
+
   return (
     <div className={styles.reportOverlay}>
       <div className={styles.reportModal}>
         <div className={styles.reportActions}>
-          <button className={styles.printBtn} onClick={() => window.print()}>🖨 Print / Save as PDF</button>
+          <button className={styles.printBtn} onClick={handlePrint}>🖨 Print / Save as PDF</button>
           <button className={styles.closeReportBtn} onClick={onClose}>✕ Close</button>
         </div>
 
-        <div className={styles.reportBody} id="report-print-area">
+        <div className={styles.reportBody}>
           <div className={styles.repHeader}>
             <div className={styles.repHospital}>Family Care Hospital — Attock</div>
             <div className={styles.repTitle}>Monthly Patient Report</div>
@@ -143,12 +273,8 @@ function PrintReport({ rooms, month, year, onClose }) {
             <table className={styles.repTable}>
               <thead>
                 <tr>
-                  <th>Room</th>
-                  <th>Type</th>
-                  <th>Admissions</th>
-                  <th>Total days</th>
-                  <th>Procedures</th>
-                  <th>Status</th>
+                  <th>Room</th><th>Type</th><th>Admissions</th>
+                  <th>Total days</th><th>Procedures</th><th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -172,15 +298,8 @@ function PrintReport({ rooms, month, year, onClose }) {
               <table className={styles.repTable}>
                 <thead>
                   <tr>
-                    <th>#</th>
-                    <th>Room</th>
-                    <th>Patient name</th>
-                    <th>MR#</th>
-                    <th>Contact</th>
-                    <th>Admitted</th>
-                    <th>Discharged</th>
-                    <th>Days</th>
-                    <th>Procedure</th>
+                    <th>#</th><th>Room</th><th>Patient name</th><th>MR#</th>
+                    <th>Contact</th><th>Admitted</th><th>Discharged</th><th>Days</th><th>Procedure</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -192,7 +311,7 @@ function PrintReport({ rooms, month, year, onClose }) {
                       <td>{e.mrNumber || '—'}</td>
                       <td>{e.contactNumber || '—'}</td>
                       <td>{e.from}{e.admitTime ? ` ${e.admitTime}` : ''}</td>
-                      <td>{e.to}{e.dischargeTime ? ` ${e.dischargeTime}` : ''}</td>
+                      <td>{e.to || '(current)'}{e.dischargeTime ? ` ${e.dischargeTime}` : ''}</td>
                       <td>{e.days !== undefined ? `${e.days}d` : '—'}</td>
                       <td>{e.procedure || '—'}</td>
                     </tr>
@@ -203,7 +322,9 @@ function PrintReport({ rooms, month, year, onClose }) {
           )}
 
           {allEntries.length === 0 && (
-            <div className={styles.repEmpty}>No patient records found for {monthName} {year}.</div>
+            <div className={styles.repEmpty}>
+              No discharged patients for {monthName} {year}. Currently admitted patients are counted in the summary above.
+            </div>
           )}
 
           <div className={styles.repFooter}>
@@ -247,7 +368,9 @@ export default function Analytics({ rooms }) {
       <div className={styles.tooltip}>
         <p className={styles.tooltipLabel}>{label}</p>
         {payload.map((p, i) => (
-          <p key={i} style={{ color: p.color, fontSize: 12 }}>{p.name}: <strong>{p.value}</strong></p>
+          <p key={i} style={{ color: p.color, fontSize: 12 }}>
+            {p.name}: <strong>{p.value}</strong>
+          </p>
         ))}
       </div>
     );
@@ -299,7 +422,9 @@ export default function Analytics({ rooms }) {
         <div className={styles.statCard}>
           <div className={styles.statIcon}>📅</div>
           <div className={styles.statInfo}>
-            <div className={styles.statValue}>{buildRoomStats(rooms, year, currentMonth).reduce((s, r) => s + r.admissions, 0)}</div>
+            <div className={styles.statValue}>
+              {buildRoomStats(rooms, year, currentMonth).reduce((s, r) => s + r.admissions, 0)}
+            </div>
             <div className={styles.statLabel}>Admissions this month</div>
           </div>
         </div>
@@ -313,7 +438,9 @@ export default function Analytics({ rooms }) {
         <div className={styles.statCard}>
           <div className={styles.statIcon}>🏆</div>
           <div className={styles.statInfo}>
-            <div className={styles.statValue}>{mostAllocated?.admissions > 0 ? mostAllocated.id : '—'}</div>
+            <div className={styles.statValue}>
+              {mostAllocated?.admissions > 0 ? mostAllocated.id : '—'}
+            </div>
             <div className={styles.statLabel}>Most used room ({year})</div>
           </div>
         </div>

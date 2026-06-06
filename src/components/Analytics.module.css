@@ -343,34 +343,8 @@
 
 /* ===== PRINT STYLES ===== */
 @media print {
-  /* Hide everything on the page except the report */
-  body > * { display: none !important; }
-  .reportOverlay {
-    position: static !important;
-    background: none !important;
-    padding: 0 !important;
-    display: block !important;
-  }
-  .reportModal {
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    max-width: 100% !important;
-    width: 100% !important;
-  }
-  .reportActions { display: none !important; }
-  .reportBody {
-    padding: 16px 20px !important;
-    font-size: 11px !important;
-  }
-  .repHeader { margin-bottom: 16px; padding-bottom: 12px; }
-  .repHospital { font-size: 14px !important; }
-  .repPeriod { font-size: 16px !important; }
-  .repStatsGrid { grid-template-columns: repeat(4, 1fr) !important; }
-  .repStatVal { font-size: 18px !important; }
-  .repTable { page-break-inside: auto; font-size: 10px !important; }
-  .repTable tr { page-break-inside: avoid; }
-  .repTable th, .repTable td { padding: 5px 7px !important; }
-  .repSection { margin-bottom: 16px !important; }
+  /* printing handled via separate window in Analytics.jsx */
+  
 }
 
 @media (max-width: 900px) {
