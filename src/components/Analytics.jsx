@@ -7,14 +7,7 @@ import styles from './Analytics.module.css';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const MOCK_MONTHLY = [
-  { month: 'Jan', admissions: 12, vacantDays: 28 },
-  { month: 'Feb', admissions: 15, vacantDays: 22 },
-  { month: 'Mar', admissions: 11, vacantDays: 32 },
-  { month: 'Apr', admissions: 18, vacantDays: 18 },
-  { month: 'May', admissions: 20, vacantDays: 14 },
-  { month: 'Jun', admissions: 9,  vacantDays: 10 },
-];
+
 
 export default function Analytics({ rooms }) {
   const [selectedYear] = useState('2026');
@@ -99,7 +92,7 @@ export default function Analytics({ rooms }) {
         <div className={styles.chartCard}>
           <h3 className={styles.chartTitle}>Monthly admissions vs vacant days</h3>
           <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={MOCK_MONTHLY} barGap={4}>
+            <BarChart data={[]} barGap={4}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e1d8" vertical={false} />
               <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 12, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
