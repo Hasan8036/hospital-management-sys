@@ -9,7 +9,7 @@ persists across all devices and sessions.
 ## Step 1 — Create a Firebase project
 
 1. Go to https://console.firebase.google.com
-2. Click **Add project** → name it "family-care-hospital"
+2. Click **Add project** → name it xyz hospital"
 3. Disable Google Analytics (not needed) → **Create project**
 4. In the left sidebar: **Build → Firestore Database**
 5. Click **Create database** → choose **Start in test mode** → pick a region → **Done**
